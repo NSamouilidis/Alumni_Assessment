@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}My Profile - Mediterranean College Alumni{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Profile Photo</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.get_full_name }}" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+                {% else %}
+                    <img src="/static/images/default-profile.png" alt="Default Profile" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+                {% endif %}
+                <h5>{{ profile.user.get_full_name|default:profile.user.username }}</h5>
+                <p class="badge {% if profile.status == 'registered' %}bg-success{% else %}bg-warning{% endif %}">
+                    {{ profile.get_status_display }}
+                </p>
+                {% if profile.school %}
+                    <p class="text-muted">{{ profile.school.name }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Contact Information</h5>
+            </div>
+            <div class="card-body">
+                <p><i class="fas fa-envelope me-2"></i> {{ profile.user.email }}</p>
+                {% if profile.phone_number %}
+                    <p><i class="fas fa-phone me-2"></i> {{ profile.phone_number }}</p>
+                {% endif %}
+                {% if profile.linkedin_profile %}
+                    <p>
+                        <i class="fab fa-linkedin me-2"></i>
+                        <a href="{{ profile.linkedin_profile }}" target="_blank">LinkedIn Profile</a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Profile Information</h5>
+                <span class="badge bg-light text-dark">Last updated: {{ profile.updated_at|date:"F d, Y" }}</span>
+            </div>
+            <div class="card-body">
+                {% if profile.status == 'applied' %}
+                    <div class="alert alert-warning mb-4">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i> Your profile is pending approval</h5>
+                        <p class="mb-0">Please complete your profile information below. An administrator will review your information and approve your account.</p>
+                    </div>
+                {% endif %}
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <h5 class="border-bottom pb-2 mb-3">Personal Information</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            {{ form.profile_picture|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.date_of_birth|as_crispy_field }}
+                            {{ form.gender|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        {{ form.bio|as_crispy_field }}
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            {{ form.phone_number|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.address|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2 mb-3">Academic Information</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            {{ form.school|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.graduation_year|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            {{ form.degree|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.major|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2 mb-3">Professional Information</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            {{ form.current_company|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.job_title|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        {{ form.linkedin_profile|as_crispy_field }}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Save Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/profile.js"></script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ alumni.user.get_full_name }} - Mediterranean College Alumni{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Profile</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if alumni.profile_picture %}
+                    <img src="{{ alumni.profile_picture.url }}" alt="{{ alumni.user.get_full_name }}" class="img-fluid rounded-circle mb-3" style="max-width: 200px;">
+                {% else %}
+                    <img src="/static/images/default-profile.png" alt="Default Profile" class="img-fluid rounded-circle mb-3" style="max-width: 200px;">
+                {% endif %}
+                <h4>{{ alumni.user.get_full_name }}</h4>
+                
+                {% if alumni.school %}
+                    <p class="text-muted">{{ alumni.school.name }}</p>
+                {% endif %}
+                
+                {% if alumni.graduation_year %}
+                    <p class="badge bg-secondary">Class of {{ alumni.graduation_year }}</p>
+                {% endif %}
+                
+                {% if alumni.current_company or alumni.job_title %}
+                    <p>
+                        {% if alumni.job_title %}{{ alumni.job_title }}{% endif %}
+                        {% if alumni.current_company %}
+                            {% if alumni.job_title %} at {% endif %}
+                            {{ alumni.current_company }}
+                        {% endif %}
+                    </p>
+                {% endif %}
+                
+                {% if alumni.linkedin_profile %}
+                    <a href="{{ alumni.linkedin_profile }}" target="_blank" class="btn btn-outline-primary mt-2">
+                        <i class="fab fa-linkedin"></i> LinkedIn Profile
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if alumni.phone_number or alumni.user.email %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if alumni.user.email %}
+                        <p><i class="fas fa-envelope me-2"></i> {{ alumni.user.email }}</p>
+                    {% endif %}
+                    
+                    {% if alumni.phone_number %}
+                        <p><i class="fas fa-phone me-2"></i> {{ alumni.phone_number }}</p>
+                    {% endif %}
+                    
+                    {% if alumni.address %}
+                        <p><i class="fas fa-map-marker-alt me-2"></i> {{ alumni.address }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-8">
+        {% if alumni.bio %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">About</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ alumni.bio|linebreaks }}</p>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Education</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-start">
+                    <div class="me-3">
+                        <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                    </div>
+                    <div>
+                        <h5>Mediterranean College</h5>
+                        {% if alumni.school %}
+                            <p class="mb-1">{{ alumni.school.name }}</p>
+                        {% endif %}
+                        
+                        {% if alumni.degree %}
+                            <p class="mb-1">{{ alumni.degree }}{% if alumni.major %} in {{ alumni.major }}{% endif %}</p>
+                        {% endif %}
+                        
+                        {% if alumni.graduation_year %}
+                            <p>Class of {{ alumni.graduation_year }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if alumni.current_company or alumni.job_title %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Professional Experience</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            <i class="fas fa-briefcase fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            {% if alumni.current_company %}
+                                <h5>{{ alumni.current_company }}</h5>
+                            {% endif %}
+                            
+                            {% if alumni.job_title %}
+                                <p>{{ alumni.job_title }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Connect</h5>
+            </div>
+            <div class="card-body">
+                <p>Are you a fellow alumnus of Mediterranean College? Connect with {{ alumni.user.first_name }} to expand your professional network!</p>
+                <div class="d-flex flex-wrap gap-2">
+                    {% if alumni.linkedin_profile %}
+                        <a href="{{ alumni.linkedin_profile }}" target="_blank" class="btn btn-outline-primary">
+                            <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                        </a>
+                    {% endif %}
+                    
+                    <a href="mailto:{{ alumni.user.email }}" class="btn btn-outline-primary">
+                        <i class="fas fa-envelope"></i> Send Email
+                    </a>
+                    
+                    <a href="{% url 'alumni:alumni_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Directory
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

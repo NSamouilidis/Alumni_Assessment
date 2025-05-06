@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} - Mediterranean College Alumni{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">{{ event.title }}</h4>
+            <span class="badge {% if event.is_past_event %}bg-secondary{% else %}bg-success{% endif %}">
+                {% if event.is_past_event %}Past Event{% else %}Upcoming Event{% endif %}
+            </span>
+        </div>
+    </div>
+    
+    {% if event.image %}
+        <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" style="max-height: 400px; object-fit: cover;">
+    {% endif %}
+    
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h5 class="border-bottom pb-2 mb-3">Event Details</h5>
+                <p>{{ event.description|linebreaks }}</p>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Information</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="fas fa-calendar-day me-2 text-primary"></i>
+                                <strong>Date & Time:</strong><br>
+                                {{ event.date|date:"l, F j, Y" }}<br>
+                                {{ event.date|time:"g:i a" }}
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                <strong>Location:</strong><br>
+                                {{ event.location }}
+                            </li>
+                            
+                            {% if event.registration_required %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-clipboard-list me-2 text-primary"></i>
+                                    <strong>Registration:</strong><br>
+                                    Registration required
+                                    
+                                    {% if event.registration_deadline %}
+                                        <br><span class="small">Deadline: {{ event.registration_deadline|date:"F j, Y, g:i a" }}</span>
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                            
+                            <li class="list-group-item">
+                                <i class="fas fa-users me-2 text-primary"></i>
+                                <strong>Attendees:</strong><br>
+                                {{ event.attendees.count }} registered
+                            </li>
+                        </ul>
+                        
+                        {% if user.is_authenticated and not event.is_past_event %}
+                            {% if event.can_register %}
+                                <div class="mt-3">
+                                    <form method="post" action="{% url 'alumni:event_register' event.id %}">
+                                        {% csrf_token %}
+                                        {% if user.alumniprofile in event.attendees.all %}
+                                            <button type="submit" class="btn btn-danger w-100">
+                                                <i class="fas fa-times-circle me-1"></i> Cancel Registration
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="fas fa-check-circle me-1"></i> Register for Event
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            {% elif event.registration_deadline and event.registration_deadline < now %}
+                                <div class="alert alert-warning mt-3 mb-0">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Registration closed
+                                </div>
+                            {% endif %}
+                        {% elif not user.is_authenticated and not event.is_past_event and event.registration_required %}
+                            <div class="alert alert-info mt-3 mb-0">
+                                <i class="fas fa-info-circle me-1"></i> Please <a href="{% url 'alumni:login' %}">login</a> to register for this event.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if user.is_authenticated and user.alumniprofile in event.attendees.all %}
+            <div class="alert alert-success mb-4">
+                <h5 class="alert-heading"><i class="fas fa-check-circle me-1"></i> You're registered for this event!</h5>
+                <p class="mb-0">We look forward to seeing you there. You can cancel your registration at any time before the event.</p>
+            </div>
+        {% endif %}
+        
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'alumni:event_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Events
+            </a>
+            
+            {% if user.is_staff %}
+                <a href="{% url 'alumni:event_update' event.id %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit Event
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Alumni Directory - Mediterranean College Alumni{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Alumni Directory</h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <form method="GET" class="d-flex">
+                    <input type="text" name="q" class="form-control me-2" placeholder="Search by name, major, company..." value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="schoolFilter" onchange="filterBySchool(this.value)">
+                    <option value="">All Schools</option>
+                    {% for school in schools %}
+                        <option value="{{ school.id }}" {% if selected_school == school.id|stringformat:"i" %}selected{% endif %}>{{ school.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        {% if alumni %}
+            <div class="row">
+                {% for profile in alumni %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                {% if profile.profile_picture %}
+                                    <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.get_full_name }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                                {% else %}
+                                    <img src="/static/images/default-profile.png" alt="Default Profile" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                                {% endif %}
+                                
+                                <h5 class="card-title">{{ profile.user.get_full_name }}</h5>
+                                {% if profile.graduation_year %}
+                                    <p class="text-muted">Class of {{ profile.graduation_year }}</p>
+                                {% endif %}
+                                
+                                {% if profile.school %}
+                                    <p class="card-text"><strong>School:</strong> {{ profile.school.name }}</p>
+                                {% endif %}
+                                
+                                {% if profile.degree %}
+                                    <p class="card-text"><strong>Degree:</strong> {{ profile.degree }}{% if profile.major %} in {{ profile.major }}{% endif %}</p>
+                                {% endif %}
+                                
+                                {% if profile.current_company %}
+                                    <p class="card-text">
+                                        <strong>Current:</strong> 
+                                        {% if profile.job_title %}{{ profile.job_title }} at {% endif %}
+                                        {{ profile.current_company }}
+                                    </p>
+                                {% endif %}
+                                
+                                <a href="{% url 'alumni:alumni_detail' profile.id %}" class="btn btn-outline-primary mt-2">View Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% if is_paginated %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_school %}&school={{ selected_school }}{% endif %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_school %}&school={{ selected_school }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_school %}&school={{ selected_school }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_school %}&school={{ selected_school }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_school %}&school={{ selected_school }}{% endif %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                <h5 class="alert-heading">No alumni found!</h5>
+                <p>No alumni profiles match your search criteria. Try a different search term or filter.</p>
+                {% if search_query or selected_school %}
+                    <a href="{% url 'alumni:alumni_list' %}" class="btn btn-outline-primary mt-2">Clear Filters</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterBySchool(schoolId) {
+        let url = new URL(window.location);
+        if (schoolId) {
+            url.searchParams.set('school', schoolId);
+        } else {
+            url.searchParams.delete('school');
+        }
+        
+        // Preserve search query if exists
+        const query = "{{ search_query }}";
+        if (query) {
+            url.searchParams.set('q', query);
+        }
+        
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %}

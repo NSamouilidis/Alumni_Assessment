@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Schools - Mediterranean College Alumni{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Schools & Departments</h4>
+    </div>
+    <div class="card-body">
+        <p class="lead mb-4">Mediterranean College offers a diverse range of academic programs across multiple schools and departments. Connect with alumni from your school or explore other faculties.</p>
+        
+        {% if schools %}
+            <div class="row">
+                {% for school in schools %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ school.name }}</h5>
+                                <p class="card-text">{{ school.description|truncatewords:30 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{% url 'alumni:school_detail' school.id %}" class="btn btn-outline-primary">View School</a>
+                                    <span class="badge bg-secondary">{{ school.alumni.count }} Alumni</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h5 class="alert-heading">No schools found</h5>
+                <p>There are currently no schools or departments in the system. Check back later.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

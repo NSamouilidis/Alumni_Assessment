@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - Mediterranean College Alumni{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0">Register for Alumni Portal</h4>
+            </div>
+            <div class="card-body">
+                <p class="lead mb-4">Join the Mediterranean College Alumni network to connect with fellow graduates, stay updated on events, and access exclusive resources.</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.first_name|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.last_name|as_crispy_field }}
+                        </div>
+                    </div>
+                    {{ form.username|as_crispy_field }}
+                    {{ form.email|as_crispy_field }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.password1|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.password2|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <small>
+                            <p class="mb-1"><strong>After registration:</strong></p>
+                            <ol class="mb-0">
+                                <li>You will be registered as an "Applied Alumni"</li>
+                                <li>Complete your profile with your graduation information</li>
+                                <li>An administrator will verify your information and update your status to "Registered Alumni"</li>
+                            </ol>
+                        </small>
+                    </div>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                    </div>
+                </form>
+                <div class="mt-3 text-center">
+                    <p>Already have an account? <a href="{% url 'alumni:login' %}">Log in here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
